@@ -10,10 +10,12 @@
     "express": "4.13.4"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
     "grunt": "^1.0.1",
     "grunt-execute": "^0.2.2",
     "grunt-typescript": "^0.8.0",
-    "load-grunt-tasks": "^3.5.0"
+    "load-grunt-tasks": "^3.5.0",
+    "mocha": "^2.4.5"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

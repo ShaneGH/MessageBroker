@@ -1,11 +1,12 @@
-(function (deps, factory) {
+(function (factory) {
     if (typeof module === 'object' && typeof module.exports === 'object') {
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(deps, factory);
+        define(["require", "exports", "./commandError"], factory);
     }
-})(["require", "exports", "./commandError"], function (require, exports) {
+})(function (require, exports) {
+    "use strict";
     var commandError = require("./commandError");
     function createErrorWithStackTrace(message) {
         try {
@@ -40,7 +41,7 @@
             }
             this._executeStatus = CommandExecuteStatus.executing;
             this.executeCommand(command, function (err, result) {
-                _this._comandResult = result;
+                _this._commandResult = result;
                 _this._executeStatus = err ?
                     CommandExecuteStatus.executeFailed :
                     CommandExecuteStatus.executed;
@@ -50,15 +51,20 @@
         CommandQueryExecutor.prototype.chainPersistable = function (persistable) {
             if (!persistable)
                 throw new Error("Null arg");
-            if (this._persistables.indexOf(persistable) !== -1)
+            if (persistable === this || this._persistables.indexOf(persistable) !== -1)
                 return;
             this._persistables.push(persistable);
+        };
+        CommandQueryExecutor.prototype.doPersist = function (callback) {
+            setTimeout(function () {
+                callback();
+            });
         };
         CommandQueryExecutor.prototype.persist = function (callback) {
             var _this = this;
             if (this._executeStatus != CommandExecuteStatus.executed) {
                 callback(new commandError({
-                    systemError: createErrorWithStackTrace("The command is not in an executable state. Status: " + this._executeStatus)
+                    systemError: createErrorWithStackTrace("The command is not in an persistable state. Status: " + this._executeStatus)
                 }));
                 return;
             }
@@ -67,7 +73,7 @@
             toPersist.push(this);
             var persist = function (index) {
                 if (index < toPersist.length) {
-                    toPersist[index].persist(function (err) {
+                    var afterPersist = function (err) {
                         if (err) {
                             _this._executeStatus = CommandExecuteStatus.persistFailed;
                             err.relatedErrors.push(new commandError({
@@ -78,17 +84,20 @@
                         else {
                             persist(index + 1);
                         }
-                    });
+                    };
+                    toPersist[index] === _this ?
+                        toPersist[index].doPersist(afterPersist) :
+                        toPersist[index].persist(afterPersist);
                 }
                 else {
                     _this._executeStatus = CommandExecuteStatus.persisted;
                     if (callback)
-                        callback(null, _this._comandResult);
+                        callback(null, _this._commandResult);
                 }
             };
             persist(0);
         };
         return CommandQueryExecutor;
-    })();
+    }());
     return CommandQueryExecutor;
 });

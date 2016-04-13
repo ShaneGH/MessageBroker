@@ -8,14 +8,14 @@ function createErrorWithStackTrace(message: string){
 }
 
 enum CommandExecuteStatus{
-  ready,
-  executing,
-  executed,
-  persisting,
-  persisted,
+  ready = 0,
+  executing = 1,
+  executed = 2,
+  persisting = 3,
+  persisted = 4,
 
-  executeFailed,
-  persistFailed
+  executeFailed = 5,
+  persistFailed = 6
 }
 
 /** Base class for objects which execute a command and expect a result */
@@ -23,7 +23,7 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
 
   private _persistables: interfaces.IPersistable<any>[] = [];
   private _executeStatus = CommandExecuteStatus.ready;
-  private _comandResult: TResult;
+  private _commandResult: TResult;
 
   /** When implemented, provides the command specific functionality to execute
   @param command - The command arguments
@@ -50,7 +50,7 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
     // do the actual work
     this.executeCommand(command, (err, result) =>{
 
-      this._comandResult = result;
+      this._commandResult = result;
 
       // set status
       this._executeStatus = err ?
@@ -65,9 +65,17 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
   /** Add an object which will be persisted before this */
   chainPersistable(persistable: interfaces.IPersistable<any>){
     if (!persistable) throw new Error("Null arg");
-    if (this._persistables.indexOf(persistable) !== -1) return;
+    if (persistable === this || this._persistables.indexOf(persistable) !== -1) return;
 
     this._persistables.push(persistable);
+  }
+
+  /**Placeholder until I put in some persistance*/
+  private doPersist(callback: interfaces.ICommandQueryCallBack<any>){
+    //TODO: persistance mechanism
+    setTimeout(() =>{
+      callback();
+    });
   }
 
   /**Persist this object and all of it's dependencies*/
@@ -76,7 +84,7 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
     // Ensure the command is in the correct state for persiting
     if (this._executeStatus != CommandExecuteStatus.executed) {
       callback(new commandError({
-        systemError: createErrorWithStackTrace("The command is not in an executable state. Status: " + this._executeStatus)
+        systemError: createErrorWithStackTrace("The command is not in an persistable state. Status: " + this._executeStatus)
       }));
 
       return;
@@ -92,8 +100,7 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
     // function to persist all objects in the toPersist array asynchronusly
     var persist = (index: number) => {
       if (index < toPersist.length) {
-        // persist the next object in the list
-        toPersist[index].persist((err) => {
+        var afterPersist = (err: commandError) => {
           if (err) {
             this._executeStatus = CommandExecuteStatus.persistFailed;
 
@@ -107,13 +114,18 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
             // no error, persist the next item
             persist(index + 1);
           }
-        });
+        };
+
+        // persist the next object in the list
+        toPersist[index] === this ?
+          (toPersist[index] as CommandQueryExecutor<TCommand, TResult>).doPersist(afterPersist) :
+          toPersist[index].persist(afterPersist);
       } else {
         this._executeStatus = CommandExecuteStatus.persisted;
 
         // all items have been persisted. Return the result
         // of the command
-        if (callback) callback(null, this._comandResult);
+        if (callback) callback(null, this._commandResult);
       }
     };
 
