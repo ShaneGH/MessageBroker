@@ -1,0 +1,26 @@
+{
+  "name": "message-broker",
+  "version": "0.1.0",
+  "description": "A simple message broker app",
+  "main": "scm/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "express": "4.13.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShaneGH/MessageBroker.git"
+  },
+  "author": "ShaneGH",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ShaneGH/MessageBroker/issues"
+  },
+  "homepage": "https://github.com/ShaneGH/MessageBroker#readme"
+}
