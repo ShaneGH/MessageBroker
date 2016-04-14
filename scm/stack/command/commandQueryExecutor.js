@@ -1,12 +1,11 @@
-(function (factory) {
+(function (deps, factory) {
     if (typeof module === 'object' && typeof module.exports === 'object') {
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", "./commandError"], factory);
+        define(deps, factory);
     }
-})(function (require, exports) {
-    "use strict";
+})(["require", "exports", "./commandError"], function (require, exports) {
     var commandError = require("./commandError");
     function createErrorWithStackTrace(message) {
         try {
@@ -98,6 +97,6 @@
             persist(0);
         };
         return CommandQueryExecutor;
-    }());
+    })();
     return CommandQueryExecutor;
 });
