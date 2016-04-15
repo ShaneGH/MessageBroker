@@ -1,4 +1,7 @@
 
+// error code to use for errors which do not have a code of their own
+const genericErrorCode = 999;
+
 /** represents an error which can be sent to a client */
 class ClientError {
 
@@ -10,6 +13,14 @@ class ClientError {
       //TODL
       this.userMessage = "An unexpected error occured.";
     }
+  }
+
+  toAPIMessage(){
+    return {
+      status: "error",
+      message: this.userMessage,
+      errorCode: this.errorCode == null ? genericErrorCode : this.errorCode
+    };
   }
 }
 

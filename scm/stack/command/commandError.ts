@@ -1,5 +1,5 @@
 
-import UserError = require("./userError");
+import UserError = require("./clientError");
 
 interface ICommandErrorArgs {
   userError?: UserError

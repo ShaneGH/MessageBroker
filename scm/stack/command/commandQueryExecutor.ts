@@ -30,6 +30,10 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
   @param callback - The success/error callback */
   protected abstract executeCommand(command: TCommand, callback: interfaces.ICommandQueryCallBack<TResult>): void;
 
+  /**Persist the data generated with the execute command
+  @param callback - the callback to report results to*/
+  protected abstract doPersist(callback: interfaces.ICommandQueryCallBack<TResult>): void;
+
   /** Execute a command
   @param command - The command arguments
   @param callback - The success/error callback */
@@ -68,14 +72,6 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
     if (persistable === this || this._persistables.indexOf(persistable) !== -1) return;
 
     this._persistables.push(persistable);
-  }
-
-  /**Placeholder until I put in some persistance*/
-  private doPersist(callback: interfaces.ICommandQueryCallBack<any>){
-    //TODO: persistance mechanism
-    setTimeout(() =>{
-      callback();
-    });
   }
 
   /**Persist this object and all of it's dependencies*/
@@ -118,7 +114,11 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
 
         // persist the next object in the list
         toPersist[index] === this ?
-          (toPersist[index] as CommandQueryExecutor<TCommand, TResult>).doPersist(afterPersist) :
+          (toPersist[index] as CommandQueryExecutor<TCommand, TResult>).doPersist((err, result) =>{
+            // allow persist method to set return value if command has not
+            if(result != null && this._commandResult == null) this._commandResult = result;
+            afterPersist(err);
+          }) :
           toPersist[index].persist(afterPersist);
       } else {
         this._executeStatus = CommandExecuteStatus.persisted;
@@ -132,6 +132,20 @@ abstract class CommandQueryExecutor<TCommand, TResult> implements interfaces.ICo
     // persist the first item which will set
     // off a chain reaction
     persist(0);
+  }
+
+  /** Execute a command and persist if successful
+  @param command - The command arguments
+  @param callback - The success/error callback */
+  executeAndPersist(command: TCommand, callback: interfaces.ICommandQueryCallBack<TResult>){
+    this.execute(command, (err) =>{
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      this.persist(callback);
+    });
   }
 }
 

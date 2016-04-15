@@ -1,12 +1,11 @@
-(function (factory) {
+(function (deps, factory) {
     if (typeof module === 'object' && typeof module.exports === 'object') {
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", "../../repository/queueRepository", "../../mappers/queue/simpleQueueMaper"], factory);
+        define(deps, factory);
     }
-})(function (require, exports) {
-    "use strict";
+})(["require", "exports", "../../repository/queueRepository", "../../mappers/queue/simpleQueueMaper"], function (require, exports) {
     var repository = require("../../repository/queueRepository");
     var mapper = require("../../mappers/queue/simpleQueueMaper");
     var GetQueues = (function () {
@@ -23,5 +22,6 @@
             });
         };
         return GetQueues;
-    }());
+    })();
+    return GetQueues;
 });

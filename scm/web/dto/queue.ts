@@ -2,7 +2,7 @@
 module Queue {
   export interface IQueue_Simple{
     id: string;
-    name: String;
+    name: string;
   }
 
   export interface IQueue extends IQueue_Simple{
@@ -10,7 +10,8 @@ module Queue {
   }
 
   export interface IConsumer{
-    consumerId: string;
+    /**consumer id*/
+    id: string;
     callback_url: string;
   }
 }

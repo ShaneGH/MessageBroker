@@ -12,7 +12,7 @@ class SimpleQueueMapper {
     return {
       id: input._id.toHexString(),
       name: input.name
-    }
+    };
   }
 }
 

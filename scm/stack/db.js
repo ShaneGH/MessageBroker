@@ -22,26 +22,33 @@
             callback(error, database);
         });
     }
-    try {
-        mongodb.MongoClient.connect(connectionString, function (err, db) {
-            error = err;
-            database = db;
-            log.log("Connected to db");
-            if (!err) {
-                onexit(function () {
-                    log.log("Closing db connection");
-                    db.close();
-                    log.log("db connection closed");
-                });
-            }
+    var _buildDbStarted = false;
+    function buildDb() {
+        if (_buildDbStarted)
+            return;
+        _buildDbStarted = true;
+        try {
+            mongodb.MongoClient.connect(connectionString, function (err, db) {
+                error = err;
+                database = db;
+                log.log("Connected to db");
+                if (!err) {
+                    onexit(function () {
+                        log.log("Closing db connection");
+                        db.close();
+                        log.log("db connection closed");
+                    });
+                }
+                onConnectionComplete();
+            });
+        }
+        catch (e) {
+            error = e;
             onConnectionComplete();
-        });
-    }
-    catch (e) {
-        error = e;
-        onConnectionComplete();
+        }
     }
     return function (callback) {
+        buildDb();
         if (!callbackQueue) {
             if (callback)
                 callback(error, database);

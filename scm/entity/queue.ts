@@ -6,13 +6,13 @@ module Queue {
 
   export interface IQueue {
     _id: mongodb.ObjectID,
-    name: String,
+    name: string,
     consumers: IConsumer[]
   }
 
   export interface IConsumer {
     consumerId: mongodb.ObjectID,
-    postUrl: String
+    postUrl: string
   }
 }
 

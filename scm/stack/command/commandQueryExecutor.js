@@ -54,11 +54,6 @@
                 return;
             this._persistables.push(persistable);
         };
-        CommandQueryExecutor.prototype.doPersist = function (callback) {
-            setTimeout(function () {
-                callback();
-            });
-        };
         CommandQueryExecutor.prototype.persist = function (callback) {
             var _this = this;
             if (this._executeStatus != CommandExecuteStatus.executed) {
@@ -85,7 +80,11 @@
                         }
                     };
                     toPersist[index] === _this ?
-                        toPersist[index].doPersist(afterPersist) :
+                        toPersist[index].doPersist(function (err, result) {
+                            if (result != null && _this._commandResult == null)
+                                _this._commandResult = result;
+                            afterPersist(err);
+                        }) :
                         toPersist[index].persist(afterPersist);
                 }
                 else {
@@ -95,6 +94,16 @@
                 }
             };
             persist(0);
+        };
+        CommandQueryExecutor.prototype.executeAndPersist = function (command, callback) {
+            var _this = this;
+            this.execute(command, function (err) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                _this.persist(callback);
+            });
         };
         return CommandQueryExecutor;
     })();

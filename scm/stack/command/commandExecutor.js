@@ -14,12 +14,16 @@ var __extends = (this && this.__extends) || function (d, b) {
     var commandQueryExecutor = require("./commandQueryExecutor");
     var GenericCommandExecutor = (function (_super) {
         __extends(GenericCommandExecutor, _super);
-        function GenericCommandExecutor(_executeCommand) {
+        function GenericCommandExecutor(_executeCommand, _doPersist) {
             _super.call(this);
             this._executeCommand = _executeCommand;
+            this._doPersist = _doPersist;
         }
         GenericCommandExecutor.prototype.executeCommand = function (command, callback) {
             this._executeCommand(command, callback);
+        };
+        GenericCommandExecutor.prototype.doPersist = function (callback) {
+            this._doPersist(callback);
         };
         return GenericCommandExecutor;
     })(commandQueryExecutor);
@@ -28,6 +32,8 @@ var __extends = (this && this.__extends) || function (d, b) {
             var _this = this;
             this._innerCommandExecutor = new GenericCommandExecutor(function (command, callback) {
                 _this.executeCommand(command, callback);
+            }, function (callback) {
+                _this.doPersist(callback);
             });
         }
         CommandExecutor.prototype.execute = function (command, callback) {
@@ -38,6 +44,16 @@ var __extends = (this && this.__extends) || function (d, b) {
         };
         CommandExecutor.prototype.persist = function (callback) {
             this._innerCommandExecutor.persist(callback);
+        };
+        CommandExecutor.prototype.executeAndPersist = function (command, callback) {
+            var _this = this;
+            this.execute(command, function (err) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                _this.persist(callback);
+            });
         };
         return CommandExecutor;
     })();

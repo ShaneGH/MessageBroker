@@ -5,8 +5,8 @@
     else if (typeof define === 'function' && define.amd) {
         define(deps, factory);
     }
-})(["require", "exports", "./userError"], function (require, exports) {
-    var UserError = require("./userError");
+})(["require", "exports", "./clientError"], function (require, exports) {
+    var UserError = require("./clientError");
     var CommandError = (function () {
         function CommandError(args) {
             this.relatedErrors = [];

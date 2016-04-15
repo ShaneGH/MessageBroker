@@ -23,33 +23,43 @@ function onConnectionComplete(){
   });
 }
 
-// connect to the database and cache connection
-try {
-  // Initialize connection once
-  mongodb.MongoClient.connect(connectionString, function(err, db) {
-    error = err;
-    database = db;
-    log.log("Connected to db");
+// delay actual db build until db is requested
+var _buildDbStarted = false;
+function buildDb () {
 
-    if (!err) {
-      // If the Node process ends, close the mongodb connection
-      onexit(function() {
+  if (_buildDbStarted) return;
+  _buildDbStarted = true;
 
-        log.log("Closing db connection");
-        db.close();
-        log.log("db connection closed");
-      });
-    }
+  // connect to the database and cache connection
+  try {
+    // Initialize connection once
+    mongodb.MongoClient.connect(connectionString, function(err, db) {
+      error = err;
+      database = db;
+      log.log("Connected to db");
 
+      if (!err) {
+        // If the Node process ends, close the mongodb connection
+        onexit(function() {
+
+          log.log("Closing db connection");
+          db.close();
+          log.log("db connection closed");
+        });
+      }
+
+      onConnectionComplete();
+    });
+  } catch(e){
+    error = e;
     onConnectionComplete();
-  });
-} catch(e){
-  error = e;
-  onConnectionComplete();
+  }
 }
 
 /**Function to deliver a database object*/
 export = function (callback: (err: Error, db: mongodb.Db) => void){
+
+  buildDb();
 
   // if queue has been deleted, then database is ready
   if (!callbackQueue) {
