@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>Message Client {{client_id}}</title>
+      <style>
+      </style>
+  </head>
+  <body>
+    <h1>Message Client {{client_id}}</h1>
+    This client is subscribed to the following queues:
+    <ul id="queues"></ul>
+    Subscribe to queue id: <input id="subscribe-to-input" /> <button id="subscribe-to-button">Add</button>
+
+    <h2>Messages<h2>
+    <ul id="messages"></ul>
+    <button id ="clear-button">Clear</button>
+
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script>
+      window.clientId = {{client_id}};
+
+      (function () {
+
+        function subscribe (queueId, callback) {
+          $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "/queues/" + queueId + "/consumers",
+            //TODO: hardcoded url
+            data: JSON.stringify({callback_url: "http://localhost:3000/testClient/" + clientId + "/messages"}),
+            success: callback
+          });
+        }
+
+        function unSubscribe (queueId) {
+          $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "/queues/" + queueId + "/consumers",
+            //TODO: hardcoded url
+            data: JSON.stringify({callback_url: "http://localhost:3000/testClient/" + clientId + "/messages"})
+          });
+        }
+
+        // add queues
+        $("#subscribe-to-button").on("click", function (){
+          var val = $("#subscribe-to-input").val();
+          if(!val) return;
+
+          var li = document.createElement("li");
+          li.innerHTML = val + " <span style='cursor: pointer'>x</span>";
+          $("span", li).on("click", function (){
+            //TODO remove
+            $(li).remove();
+          });
+
+          subscribe(val, function(data){
+
+          });
+          //TOOO Add
+          $("#queues").append(li);
+        });
+
+        // poll for new messages every 2 seconds
+        setInterval(function(){
+          $.ajax({
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "/testClient/" + clientId + "/messages",
+            success: function (data){
+              if (!data) return;
+
+              var $messages = $("#messages")
+              data.forEach(function(d) {
+                $messages.append("<li>" + d.message + "</li>");
+              });
+            }
+          });
+        }, 2000)
+      }());
+    </script>
+  </body>
+</html>

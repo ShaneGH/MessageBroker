@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <title>Message Client Admin</title>
+      <style>
+      </style>
+  </head>
+  <body>
+    <h1>Message Client Admin</h1>
+    Use this admin client to add and remove queues and to remove consumers from a queue.
+    Use the queue consumer application to add consumers to a queue
+    <h2>Add Queue</h2>
+    Name: <input id="queue-name" /> <button id="add-queue">Add</button>
+    <h2>Queues</h2>
+    <button id="refresh">Refresh</button>
+    <ul id="queues"></ul>
+
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script>
+
+      (function () {
+        function deleteQueue(queue){
+
+          $.ajax({
+            type: "DELETE",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "/queues/" + $(queue).attr("data-id"),
+            success: function (){
+              $(queue).remove();
+            }
+          });
+        }
+
+        function deleteConsumer(consumer){
+
+          $.ajax({
+            type: "DELETE",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "/queues/" + $(consumer).attr("data-queue-id") + "/consumers/" + $(consumer).attr("data-consumer-id"),
+            success: function (){
+              $(consumer).remove();
+            }
+          });
+        }
+
+        function addQueueConsumers(queue){
+
+          $.ajax({
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "/queues/" + $(queue).attr("data-id") + "/consumers",
+            success: function (data){
+              if (!data) return;
+
+              data = data.map(function (c){
+                var consumer = $("<li data-queue-id='" + c.queue_id +
+                  "' data-consumer-id='" + c.id +
+                  "' data-url='" + c.callback_url + "'>ID: " +
+                  c.id + ", url: " + c.callback_url + "</li>")[0];
+                var _delete = $("<span style='cursor: pointer; margin-left: 15px'>X<span>")[0];
+                $(_delete).on("click", function(){
+                  deleteConsumer(consumer);
+                });
+
+                $(consumer).append(_delete);
+                return consumer;
+              });
+
+              var consumers = $("<ul></ul>")[0];
+              $(consumers).append(data);
+              $(queue).append(consumers);
+            }
+          });
+        }
+
+        function refreshQueues () {
+          $.ajax({
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "/queues",
+            success: function (data){
+              $("#queues").empty();
+
+              if(!data) return;
+
+              // convert to html element
+              data = data.map(function (q){
+                var queue = $("<li data-id='" + q.id + "' data-name='" + q.name + "'>Name: " + q.name + ", ID: " + q.id + "</li>")[0];
+                var _delete = $("<span style='cursor: pointer; margin-left: 15px'>X<span>")[0];
+                $(_delete).on("click", function(){
+                  deleteQueue(queue);
+                });
+
+                $(queue).append(_delete);
+                addQueueConsumers(queue);
+                return queue;
+              });
+
+              $("#queues").append(data);
+            }
+          });
+        }
+
+        $("#add-queue").on("click", function (){
+
+          $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "/queues",
+            data: JSON.stringify({name: $("#queue-name").val()}),
+            success: function (){
+              $("#queue-name").val("");
+              refreshQueues();
+            }
+          });
+        });
+
+        $("#refresh").on("click", refreshQueues);
+        refreshQueues();
+      }());
+    </script>
+  </body>
+</html>

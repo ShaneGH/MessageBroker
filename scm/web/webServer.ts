@@ -6,6 +6,7 @@ import log = require("../stack/log");
 
 // routes
 import queues = require("./routes/queues");
+import testClient = require("./testClient/clientRoute");
 
 // create a web server
 const server = express();
@@ -21,6 +22,7 @@ bodyParser(server);
 
 // add routes
 server.use("/queues", queues);
+server.use("/testClient", testClient);  //TODO: if debug to remove test client from production
 
 // log unhandled errors
 server.use((err: any, req: express.Request,
