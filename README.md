@@ -15,10 +15,12 @@ This application was built using typescript. If you make changes to a .ts file, 
 The message server can be run using the file /scm/index.js
 
 ## Running the message admin client
-The message admin client is a website at "/testClient/admin"
+The message admin client is a webpage at **localhost:3000/testClient/admin**
 
 ## Running a test consumer
-A message consumer can be run by going to the page: "/testClient". These test clients are disposable, meaning that if you refresh the page, you will get a brand new client
+A message consumer can be run by going to the page: **localhost:3000/testClient**. These test clients are disposable, meaning that if you refresh the page, you will get a brand new client.
+
+I would suggest opening multiple message consumers in multiple tabs in a browser.
 
 ## A note on mongodb
 I decided that redundency was one of my primary goals with this project. This meant that I had to include the file system, and could not just save queues to RAM. Initially I was considering writing my own protocol for message storage, but finally decided that this would be quite un necessary, long and somewhat boring work.
@@ -56,8 +58,9 @@ You can run unit tests using "mocha --recursive"
 
 ## A note on my test approach
 I decided not to introduce a suite of integration tests because
+
 1. The time involved in setting up an integration test environment
 2. I believe that integaration tests without unit tests are a dangerous thing, so I chose unit only. In an enterprise environment, I have noticed that without a good suite of unit tests, broken integration tests usually do not indicate bad code (only bad tests), and can suck up huge amounts of development time.
-3. Integartion tests do not highlight a developers test style as much as unit tests do.
+3. Integaration tests do not highlight a developers test style as much as unit tests do.
 
 I decided not to unit test a lot of my business logic commands, simply because there is no business logic to them, only db save commands and so, nothing much to test.
