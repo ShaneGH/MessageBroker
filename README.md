@@ -8,10 +8,12 @@ Simple HTTP message broker server
 4. Mocha (global command)
 5. all other dependencies can be resolved with a call to "npm install"
 
-## A note on typescript
-This application was built using typescript. If you make changes to a .ts file, you can compile them using the command "grunt typescript"
+## A note on typescript and data types
+This application was built using typescript. I decided on typescrit because of it's excellent object oriented framework, UMD and to cut down on validating data types.
 
-When compiling typescript, the code comments are not transferred, so it may be better to read the .ts files instead.
+By the same token however, I am ignoring a very important area of data validation, within the web routes. Had I the time, I would have built a grunt plugin to auto build typescript data validators which could be used in the routing layer of the application.
+
+If you make changes to a .ts file, you can compile them using the command "grunt typescript". When compiling typescript, the code comments are not transferred, so it may be better to read the .ts files instead.
 
 ## Running the message server
 The message server can be run using the file /scm/index.js
