@@ -49,6 +49,8 @@ I decided not to introduce a suite of integration tests because
 
 I decided not to unit test a lot of my business logic commands, simply because there is no business logic to them, only db save commands and so, nothing much to test.
 
+Unit tests were written in javascript as it is more hackable than typescript
+
 ## Project structure
 1. Project build files: **Gruntfile.js, package.json, tsconfig.json**
 2. **scm**
