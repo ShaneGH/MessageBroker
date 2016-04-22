@@ -11,6 +11,8 @@ Simple HTTP message broker server
 ## A note on typescript
 This application was built using typescript. If you make changes to a .ts file, you can compile them using the command "grunt typescript"
 
+When compiling typescript, the code comments are not transferred, so it may be better to read the .ts files instead.
+
 ## Running the message server
 The message server can be run using the file /scm/index.js
 
