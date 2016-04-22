@@ -9,6 +9,7 @@ var callbackQueue: {(err: Error, db: mongodb.Db): void}[] = [];
 var error: Error;
 var database: mongodb.Db;
 
+/**Execute when the database has been connected to*/
 function onConnectionComplete(){
   // connection complete has already been called
   if (!callbackQueue) return;
@@ -23,7 +24,7 @@ function onConnectionComplete(){
   });
 }
 
-// delay actual db build until db is requested
+// delay actual db build until a db is requested for the first time
 var _buildDbStarted = false;
 function buildDb () {
 

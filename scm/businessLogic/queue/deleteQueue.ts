@@ -13,8 +13,8 @@ class DeleteQueue extends commandExecutor<IDeleteQueue> {
 
   private _entityDetails: IDeleteQueue
 
-  /** Execute the query
-  @param query - The query object
+  /** Execute the comand
+  @param query - The command object
   @param callback - The callback to execute */
   executeCommand(command: IDeleteQueue, callback: interfaces.ICommandQueryCallBack<any>) {
 

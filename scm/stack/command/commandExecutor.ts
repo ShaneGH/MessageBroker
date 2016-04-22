@@ -17,8 +17,6 @@ class GenericCommandExecutor<TCommand> extends commandQueryExecutor<TCommand, an
     this._executeCommand(command, callback);
   }
 
-  /**Persist the data generated with the execute command
-  @param callback - the callback to report results to*/
   protected doPersist(callback: interfaces.ICommandQueryCallBack<any>){
     this._doPersist(callback);
   }

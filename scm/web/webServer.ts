@@ -11,7 +11,8 @@ import testClient = require("./testClient/clientRoute");
 // create a web server
 const server = express();
 
-// url log
+// log request urls
+//TODO: non production only
 server.use(function (req, res, next){
   console.log(req.method + ": " + req.url);
   next();
@@ -22,7 +23,8 @@ bodyParser(server);
 
 // add routes
 server.use("/queues", queues);
-server.use("/testClient", testClient);  //TODO: if debug to remove test client from production
+//TODO: non production only
+server.use("/testClient", testClient);
 
 // log unhandled errors
 server.use((err: any, req: express.Request,

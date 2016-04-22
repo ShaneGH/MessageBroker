@@ -9,7 +9,7 @@ interface IGetConsumers {
   queueId: string
 }
 
-/**Query to list all of the queues in the system */
+/**Query to list all of the consumers on a queue */
 class GetConsumers implements commandInterfaces.IQueryExecutor<IGetConsumers, dtos.IConsumer[]> {
 
   /** Execute the query
@@ -26,11 +26,11 @@ class GetConsumers implements commandInterfaces.IQueryExecutor<IGetConsumers, dt
     // create repo and persist validated data
     new repository().getQueueById(query.queueId, (err, query) =>{
       if(err) {
-        //TODO: better client error details
-        callback(new commandError({systemError: err}));
+        callback(new commandError({systemError: err, userError: new ClientError("Error retrieving consumers")}));
         return;
       }
 
+      // if there is not query, there are no consumers
       if(!query) {
         callback(null, []);
         return;

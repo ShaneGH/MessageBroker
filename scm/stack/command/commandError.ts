@@ -6,7 +6,8 @@ interface ICommandErrorArgs {
   systemError?: Error
 }
 
-/** The error from a command */
+/** The error from a command which includes detals for the user and detals for
+the error logs */
 class CommandError{
 
   userError: UserError;

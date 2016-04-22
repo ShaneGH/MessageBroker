@@ -8,7 +8,7 @@ describe("lockManager", function() {
   describe("constructor", function () {
     // global arrange
     // global act
-    var subject = new lockManager();
+    var subject = new lockManager.LockManager();
 
     it("should hould have a _locks property ", function () {
       // assert
@@ -18,7 +18,7 @@ describe("lockManager", function() {
 
   describe("_getLock integration test", function () {
     // global arrange
-    var subject = new lockManager();
+    var subject = new lockManager.LockManager();
 
     it("should behave correctly for multple locks", function (done) {
 

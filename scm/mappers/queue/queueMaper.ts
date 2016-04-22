@@ -4,7 +4,7 @@ import dto = require("../../web/dto/queue");
 import SimpleQueueMapper = require("./simpleQueueMaper");
 import ConsumerMapper = require("./consumerMapper");
 
-/**Map from a queue entity to a simple queue dto*/
+/**Map from a queue entity to a full queue dto*/
 class QueueMapper extends SimpleQueueMapper {
 
   /**instance to be used instead of creating a new one*/

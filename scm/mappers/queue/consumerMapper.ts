@@ -2,7 +2,7 @@
 import entity = require("../../entity/queue");
 import dto = require("../../web/dto/queue");
 
-/**Map from a queue entity to a simple queue dto*/
+/**Map from a consumer sub entity to a dto*/
 class ConsumerMapper {
 
   /**instance to be used instead of creating a new one*/

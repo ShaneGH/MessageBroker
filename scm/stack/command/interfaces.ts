@@ -28,7 +28,7 @@ module interfaces{
 
   /** Represents a class which executes a command with no return value */
   export interface ICommandExecutor<TCommand> extends IPersistable<any> {
-    /** Execute a command
+    /** Execute the business logic of a command
     @param command - the command
     @param callback - the callback executed when the command is complete */
     execute(command: TCommand, callback: ICommandQueryCallBack<any>) : void;
@@ -36,7 +36,7 @@ module interfaces{
 
   /** Represents a class which executes a command with a return value */
   export interface ICommandQueryExecutor<TCommand, TResult> extends IPersistable<TResult> {
-    /** Execute a command
+    /** Execute the business logic of a command
     @param command - the command
     @param callback - the callback executed when the command is complete. Args are not delivered until persist is completed */
     execute(command: TCommand, callback: ICommandQueryCallBack<any>) : void;

@@ -39,8 +39,7 @@ class AddQueue extends commandQueryExecutor<IAddQueue, IAddQueueResult> {
     new repository()
       .addQueue({name: this._entityDetails.name}, (err, id) => {
         if(err) {
-          //TODO: better client error details
-          callback(new commandError({systemError: err}));
+          callback(new commandError({systemError: err, userError: new ClientError("Error adding queue to system")}));
           return;
         }
 

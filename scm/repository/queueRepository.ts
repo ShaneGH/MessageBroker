@@ -3,21 +3,25 @@ import mongodb = require("mongodb");
 import db = require("../stack/db");
 import queue = require("../entity/queue");
 
+/**Arguments for the getQueues method*/
 interface IGetQueuesOptions {
   /** Default: false*/
   includeSubscribers?: boolean;
 }
 
+/**Arguments for the addQueue method*/
 interface IAddQueueDetails {
-  /**The unique name of the queue*/
+  /**The name of the queue*/
   name: string
 }
 
+/**Arguments for the addConsumerToQueue method*/
 interface IAddConsumerToQueueDetails{
   queueId: string
   postUrl: string
 }
 
+/**Arguments for the removeConsumerFromQueue method*/
 interface IRemoveConsumerFromQueueDetails{
   queueId: string
   consumerId: string
@@ -35,6 +39,7 @@ class QueueRepository {
 
     callback = callback || empty;
 
+    // get a database object
     db((err, database) =>{
       if (err) {
         callback(err, null);
@@ -60,13 +65,15 @@ class QueueRepository {
   @param id - The queue id
   @param callback - callback to return a queue to*/
   getQueueById(id: string, callback: (err: Error, queue: queue.IQueue) => void){
-    return this._getFirstQueue({_id: new mongodb.ObjectID(id)}, callback);
+    return this._getFirstQueue({_id: new mongodb.ObjectID(id)}, callback); //TODO: try/catch
   }
 
   /**Override a queue with the given values
   @param queueEntity - The queue
   @param callback - callback to return a queue to*/
   saveExistingQueue(queueEntity: queue.IQueue, callback: (err: Error) => void){
+
+    //TODO: concurrency
 
     if (!queueEntity) {
       callback(new Error("Invalid queue entity"));
@@ -75,6 +82,7 @@ class QueueRepository {
 
     callback = callback || empty;
 
+    // get a database object
     db((err, database) =>{
       if (err) {
         callback(err);
@@ -89,7 +97,7 @@ class QueueRepository {
           } else if (result.result.ok) {
             callback(null);
           } else {
-            //TODO: compile and record erro detail
+            //TODO: compile better error detail
             callback(new Error("Error writing to mongodb"));
           }
         });
@@ -140,9 +148,9 @@ class QueueRepository {
     });
   }
 
-  /**Return all queues
-  @param options - Search and return value operations
-  @param callback - callback to return options to*/
+  /**Add a queue
+  @param options - queue details
+  @param callback - callback to return values to*/
   addQueue(options: IAddQueueDetails, callback: (err: Error, id: string) => void){
 
     callback = callback || empty;
@@ -153,6 +161,7 @@ class QueueRepository {
         return;
       }
 
+      // create unique id
       var id = new mongodb.ObjectID();
       database
         .collection(queue.collectionName)
@@ -172,9 +181,9 @@ class QueueRepository {
     });
   }
 
-  /**Return all queues
-  @param options - Search and return value operations
-  @param callback - callback to return options to*/
+  /**Add a consumer to a queue
+  @param options - consumer details
+  @param callback - callback to return values to*/
   addConsumerToQueue(options: IAddConsumerToQueueDetails, callback: (err: Error, consumerId: string) => void){
 
     callback = callback || empty;
@@ -185,11 +194,14 @@ class QueueRepository {
         return;
       }
 
+      // create consumer entity
       var newConsumer = {consumerId: new mongodb.ObjectID(), postUrl: options.postUrl};
+
+      // save
       database
         .collection(queue.collectionName)
         .updateOne({
-          _id: new mongodb.ObjectID(options.queueId)
+          _id: new mongodb.ObjectID(options.queueId) //TODO: try/catch
         }, {
           $push: {
             "consumers": newConsumer
@@ -198,20 +210,21 @@ class QueueRepository {
           if (err) {
             callback(err, null);
           } else if (!result.result.nModified) {
+            // possible invalid query id
             callback(new Error("Could not find query specified"), null);
           } else if (result.result.ok) {
             callback(null, newConsumer.consumerId.toHexString());
           } else {
-            //TODO: compile and record error detail
+            //TODO: compile better error detail
             callback(new Error("Error writing to mongodb"), null);
           }
         });
     });
   }
 
-  /**Return all queues
-  @param options - Search and return value operations
-  @param callback - callback to return options to*/
+  /**Remove a consumer froma  queue
+  @param options - consumer details
+  @param callback - result callback*/
   removeConsumerFromQueue(options: IRemoveConsumerFromQueueDetails, callback: (err: Error) => void){
 
     callback = callback || empty;
@@ -225,11 +238,11 @@ class QueueRepository {
       database
         .collection(queue.collectionName)
         .updateOne({
-          _id: new mongodb.ObjectID(options.queueId)
+          _id: new mongodb.ObjectID(options.queueId) //TODO: try/catch
         }, {
           $pull: {
             "consumers": {
-              consumerId: new mongodb.ObjectID( options.consumerId)
+              consumerId: new mongodb.ObjectID( options.consumerId) //TODO: try/catch
             }
           }
         }, null, (err, result) => {
@@ -240,7 +253,7 @@ class QueueRepository {
           } else if (result.result.ok) {
             callback(null);
           } else {
-            //TODO: compile and record error detail
+            //TODO: compile better error detail
             callback(new Error("Error writing to mongodb"));
           }
         });
@@ -263,14 +276,14 @@ class QueueRepository {
       database
         .collection(queue.collectionName)
         .deleteOne({
-          _id: new mongodb.ObjectID(id)
+          _id: new mongodb.ObjectID(id) //TODO: try/catch
         }, null, (err, result) =>{
           if (err) {
             callback(err);
           } else if (result.result.ok) {
             callback(null);
           } else {
-            //TODO: compile and record erro detail
+            //TODO: compile better error detail
             callback(new Error("Error deleting from mongodb"));
           }
         });

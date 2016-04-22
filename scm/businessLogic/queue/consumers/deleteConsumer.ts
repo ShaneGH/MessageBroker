@@ -9,7 +9,7 @@ interface IDeleteConsumer {
   queueId: string
 }
 
-/**Query to list all of the queues in the system */
+/**Query to delete a consumer from a queue */
 class DeleteConsumer extends commandExecutor<IDeleteConsumer> {
 
   private _entityDetails: IDeleteConsumer
@@ -39,8 +39,7 @@ class DeleteConsumer extends commandExecutor<IDeleteConsumer> {
         consumerId: this._entityDetails.consumerId
       }, err => {
         if(err) {
-          //TODO: better client error details
-          callback(new commandError({systemError: err}));
+          callback(new commandError({systemError: err, userError: new ClientError("Error removing consumer from queue")}));
           return;
         }
 

@@ -15,6 +15,7 @@ class ClientError {
     }
   }
 
+  /**Convert this to something which can be consumed by an API user*/
   toAPIMessage(){
     return {
       status: "error",

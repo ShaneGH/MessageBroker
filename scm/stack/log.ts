@@ -1,5 +1,5 @@
 
-//TODO: actual logging strategy
+//TODO: persist logs
 
 /** Simple static logging functionality */
 class log{
@@ -10,8 +10,6 @@ class log{
 
   /** Trace a message */
   static trace(...object: any[]){
-    //TODO: if tracing is enabled
-
     console.log.apply(console, object);
   }
 

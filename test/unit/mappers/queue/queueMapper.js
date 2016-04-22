@@ -37,7 +37,7 @@ describe("queueMaper", function() {
       var result = queueMaper.instance.toDto(input);
 
       // assert
-      expect(result.consumers[0].consumerId).to.equal(input.consumers[0].consumerId.toHexString());
+      expect(result.consumers[0].id).to.equal(input.consumers[0].consumerId.toHexString());
       expect(result.consumers[0].callback_url).to.equal(input.consumers[0].postUrl);
     });
   });

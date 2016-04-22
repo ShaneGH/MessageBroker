@@ -10,7 +10,7 @@ interface IRenameQueue {
   name: string
 }
 
-/**Query to list all of the queues in the system */
+/**Command to rename a queue */
 class RenameQueue extends commandExecutor<IRenameQueue> {
 
   private _entity: entity.IQueue;
@@ -46,7 +46,7 @@ class RenameQueue extends commandExecutor<IRenameQueue> {
 
     this._repository.saveExistingQueue(this._entity, (err) =>
       callback(err ?
-        new commandError({systemError: err}) :  //TODO: better client error details
+        new commandError({systemError: err, userError: new ClientError("Error re-naming queue")}) :
         null));
   }
 }

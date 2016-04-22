@@ -23,7 +23,7 @@ describe("consumerMaper", function() {
       var result = consumerMapper.instance.toDto(input);
 
       // assert
-      expect(result.consumerId).to.equal(input.consumerId.toHexString());
+      expect(result.id).to.equal(input.consumerId.toHexString());
       expect(result.callback_url).to.equal(input.postUrl);
     });
   });

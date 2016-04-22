@@ -3,17 +3,21 @@
   <head>
       <title>Message Client Admin</title>
       <style>
+      .queue{max-width: 400px}
+      .close-button{cursor: pointer; float: right}
+      .consumer {padding-top: 8px;}
       </style>
   </head>
   <body>
     <h1>Message Client Admin</h1>
-    Use this admin client to add and remove queues and to remove consumers from a queue.
-    Use the queue consumer application to add consumers to a queue
+    <p>Use this admin client to add and remove queues and to remove consumers from a queue.
+    Use the <a href="/testClient">queue consumer application</a> to add consumers to a queue</p>
     <h2>Add Queue</h2>
     Name: <input id="queue-name" /> <button id="add-queue">Add</button>
     <h2>Queues</h2>
     <button id="refresh">Refresh</button>
-    <ul id="queues"></ul>
+    <div id="queues"></div>
+
 
     <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
     <script>
@@ -45,7 +49,40 @@
           });
         }
 
-        function addQueueConsumers(queue){
+        function postMessageToQueue(queueId, message) {
+
+          $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            url: "/queues/" + queueId + "/messages/",
+            data: JSON.stringify({body: message}),
+            success: function (){
+              alert("Sucessfully posted message");
+            }
+          });
+        }
+
+        function addPostMessageToQueue(queue) {
+          var input = $("<input />")[0];
+          var postButton = $("<button>Post</button>")[0];
+
+          $(queue).append("<br />");
+          $(queue).append("<br />");
+          $(queue).append("Post message: ");
+          $(queue).append(input);
+          $(queue).append(postButton);
+
+          $(postButton).on("click", function (){
+            var message = $(input).val();
+            if (!message) return;
+
+            postMessageToQueue($(queue).attr("data-id"), message);
+            $(input).val("");
+          });
+        }
+
+        function addConsumersToQueue(queue){
 
           $.ajax({
             type: "GET",
@@ -56,24 +93,41 @@
               if (!data) return;
 
               data = data.map(function (c){
-                var consumer = $("<li data-queue-id='" + c.queue_id +
+                var consumer = $("<li class='consumer' data-queue-id='" + c.queue_id +
                   "' data-consumer-id='" + c.id +
                   "' data-url='" + c.callback_url + "'>ID: " +
-                  c.id + ", url: " + c.callback_url + "</li>")[0];
-                var _delete = $("<span style='cursor: pointer; margin-left: 15px'>X<span>")[0];
+                  c.id + "<br/> url: " + c.callback_url + "</li>")[0];
+                var _delete = $("<span class='close-button'>X<span>")[0];
                 $(_delete).on("click", function(){
                   deleteConsumer(consumer);
                 });
 
-                $(consumer).append(_delete);
+                $(consumer).prepend(_delete);
                 return consumer;
               });
 
               var consumers = $("<ul></ul>")[0];
               $(consumers).append(data);
+              $(queue).append("<h4>Consumers</h4>");
               $(queue).append(consumers);
             }
           });
+        }
+
+        function buildQueueHtml(queueObject){
+          var queue = $("<div class='queue' data-id='" + queueObject.id + "' data-name='" + queueObject.name + "'>" +
+            "<h3>" + queueObject.name + "</h3>" +
+            "ID: " + queueObject.id +
+          "</div>")[0];
+          var _delete = $("<span class='close-button'>X<span>")[0];
+          $(_delete).on("click", function(){
+            deleteQueue(queue);
+          });
+
+          $(queue).prepend(_delete);
+          addPostMessageToQueue(queue);
+          addConsumersToQueue(queue);
+          return queue;
         }
 
         function refreshQueues () {
@@ -88,18 +142,7 @@
               if(!data) return;
 
               // convert to html element
-              data = data.map(function (q){
-                var queue = $("<li data-id='" + q.id + "' data-name='" + q.name + "'>Name: " + q.name + ", ID: " + q.id + "</li>")[0];
-                var _delete = $("<span style='cursor: pointer; margin-left: 15px'>X<span>")[0];
-                $(_delete).on("click", function(){
-                  deleteQueue(queue);
-                });
-
-                $(queue).append(_delete);
-                addQueueConsumers(queue);
-                return queue;
-              });
-
+              data = data.map(buildQueueHtml);
               $("#queues").append(data);
             }
           });

@@ -1,6 +1,7 @@
 
 import mongodb = require("mongodb");
 
+/**Collection of values for the IQueue entity*/
 module Queue {
   export var collectionName = "queues";
 

@@ -1,11 +1,5 @@
-(function (deps, factory) {
-    if (typeof module === 'object' && typeof module.exports === 'object') {
-        var v = factory(require, exports); if (v !== undefined) module.exports = v;
-    }
-    else if (typeof define === 'function' && define.amd) {
-        define(deps, factory);
-    }
-})(["require", "exports"], function (require, exports) {
+var LockManagerModule;
+(function (LockManagerModule) {
     var LockManager = (function () {
         function LockManager() {
             this._locks = {};
@@ -50,5 +44,6 @@
         };
         return LockManager;
     })();
-    return LockManager;
-});
+    LockManagerModule.LockManager = LockManager;
+})(LockManagerModule || (LockManagerModule = {}));
+module.exports = LockManagerModule;
