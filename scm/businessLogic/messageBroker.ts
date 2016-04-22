@@ -6,10 +6,14 @@ import log = require("../stack/log");
 import url = require("url");
 import http = require("http");
 
+const tenMinutes = 10 * 60 * 1000;
+
 /** Used to lock a message so that only one broker can use it at a time*/
 class MessageBrokerLockManager extends lockManager.LockManager{
   getLock(messageId: string, callback: (lock: lockManager.IReleaseLock) => void){
-    this._getLock("Queue-" + messageId, callback);
+
+    // allow ten minute timeout for the lock
+    this._getLock("Queue-" + messageId, tenMinutes, callback);
   }
 }
 

@@ -1,4 +1,3 @@
-"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -10,16 +9,17 @@ var repoitory = require("../repository/messageRepository");
 var log = require("../stack/log");
 var url = require("url");
 var http = require("http");
+var tenMinutes = 10 * 60 * 1000;
 var MessageBrokerLockManager = (function (_super) {
     __extends(MessageBrokerLockManager, _super);
     function MessageBrokerLockManager() {
         _super.apply(this, arguments);
     }
     MessageBrokerLockManager.prototype.getLock = function (messageId, callback) {
-        this._getLock("Queue-" + messageId, callback);
+        this._getLock("Queue-" + messageId, tenMinutes, callback);
     };
     return MessageBrokerLockManager;
-}(lockManager.LockManager));
+})(lockManager.LockManager);
 var messageBrokerLockManager = new MessageBrokerLockManager();
 function parseUrl(rawUrl) {
     var u = url.parse(rawUrl);
@@ -115,5 +115,5 @@ var MessageBroker = (function () {
         });
     };
     return MessageBroker;
-}());
+})();
 module.exports = MessageBroker;

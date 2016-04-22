@@ -17,26 +17,30 @@ var LockManagerModule;
             if (!this._locks[resourceName])
                 return;
             if (this._locks[resourceName].length) {
-                var newLock = this._locks[resourceName][0];
+                var newLock = this._locks[resourceName][0], released = false;
                 setTimeout(function () {
-                    newLock.lockOwner({
+                    var releaseLock = {
                         release: function () {
                             if (released)
                                 return;
                             released = true;
                             _this._onLockReleased(resourceName, newLock);
                         }
-                    });
+                    };
+                    newLock.lockOwner(releaseLock);
+                    if (newLock.timeoutMilliseconds) {
+                        setTimeout(releaseLock.release, newLock.timeoutMilliseconds);
+                    }
                 });
-                var released = false;
             }
         };
-        LockManager.prototype._getLock = function (resourceName, callback) {
+        LockManager.prototype._getLock = function (resourceName, timeoutMilliseconds, callback) {
             if (!this._locks[resourceName]) {
                 this._locks[resourceName] = [];
             }
             this._locks[resourceName].push({
-                lockOwner: callback
+                lockOwner: callback,
+                timeoutMilliseconds: timeoutMilliseconds > 0 ? timeoutMilliseconds : null
             });
             if (this._locks[resourceName].length === 1) {
                 this._giveControlToNextLock(resourceName);

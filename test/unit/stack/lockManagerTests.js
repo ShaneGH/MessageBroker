@@ -20,13 +20,30 @@ describe("lockManager", function() {
     // global arrange
     var subject = new lockManager.LockManager();
 
+    it("should behave correctly with timeout", function (done) {
+
+      // expect a certain order of events to be preserved
+      var firstComlete = false;
+
+      subject._getLock("timeout", 200, function (release) {
+        firstComlete = true;
+      });
+
+      // takes the second longest
+      subject._getLock("timeout", null, function (release) {
+        release.release();
+        assert.equal(firstComlete, true);
+        done();
+      });
+    });
+
     it("should behave correctly for multple locks", function (done) {
 
       // expect a certain order of events to be preserved
       var orderOfEvents = [];
 
       // takes the longest
-      subject._getLock("lock", function (release) {
+      subject._getLock("lock", null, function (release) {
         orderOfEvents.push(0);
         setTimeout(function (){
           orderOfEvents.push(1);
@@ -35,7 +52,7 @@ describe("lockManager", function() {
       });
 
       // takes the second longest
-      subject._getLock("lock", function (release) {
+      subject._getLock("lock", null, function (release) {
         orderOfEvents.push(2);
         setTimeout(function (){
           orderOfEvents.push(3);
@@ -44,14 +61,14 @@ describe("lockManager", function() {
       });
 
       // instant
-      subject._getLock("lock", function (release) {
+      subject._getLock("lock", null, function (release) {
         orderOfEvents.push(4);
         release.release();
         orderOfEvents.push(5);
       });
 
       // instant
-      subject._getLock("lock", function (release) {
+      subject._getLock("lock", null, function (release) {
         release.release();
 
         // there should have been 6 events

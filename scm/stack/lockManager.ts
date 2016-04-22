@@ -7,7 +7,8 @@ module LockManagerModule {
 
   /** internal interface used to store queued logica callbacks */
   export interface ILock {
-    lockOwner: (lock: IReleaseLock) => void
+    lockOwner: (lock: IReleaseLock) => void,
+    timeoutMilliseconds: number
   }
 
   /** Manages concurrent locks on a specific resource */
@@ -33,34 +34,45 @@ module LockManagerModule {
 
       // give control to new lock
       if (this._locks[resourceName].length) {
-        var newLock = this._locks[resourceName][0];
+        // remove and isolate the lock
+        var newLock = this._locks[resourceName][0],
+            released = false;
 
         // if release is called, allow
         // the rest of the logic from the function which released
         // the lock to execute before passing to the next lock
         setTimeout(() =>{
-
-          newLock.lockOwner({
+          // create object to releas this lock
+          var releaseLock = {
             release: () =>{
               if (released) return;
               released = true;
 
               this._onLockReleased(resourceName, newLock)
             }
-          });
+          };
+
+          // execute the logic for the next lock owner
+          newLock.lockOwner(releaseLock);
+
+          // if there is a timeout, apply it
+          if (newLock.timeoutMilliseconds) {
+            setTimeout(releaseLock.release, newLock.timeoutMilliseconds);
+          }
         });
-        var released = false;
       }
     }
 
-    /**Lock a resource and call the callback when it is available*/
-    protected _getLock(resourceName: string, callback: (lock: IReleaseLock) => void){
+    /**Lock a resource and call the callback when it is available
+    @param timeoutMiliseconds - how long to wait until the lock is released. Null to ignore the timeout*/
+    protected _getLock(resourceName: string, timeoutMilliseconds: number, callback: (lock: IReleaseLock) => void){
       if (!this._locks[resourceName]) {
         this._locks[resourceName] = [];
       }
 
       this._locks[resourceName].push({
-        lockOwner: callback
+        lockOwner: callback,
+        timeoutMilliseconds: timeoutMilliseconds > 0 ? timeoutMilliseconds : null
       });
 
       // nothing has the lock right now, give it to the callback just registered
