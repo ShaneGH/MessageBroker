@@ -1,3 +1,0 @@
-TODO, custom, see message
-TODL, localisation
-TODT, unit test needed 
